@@ -34,5 +34,7 @@
     "permissions": [
         "tabs",
         "activeTab"
-    ]
+    ],
+    "content_security_policy": "script-src 'self' https://www.gstatic.com/; object-src 'self'"
+
 }
