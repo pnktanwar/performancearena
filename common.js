@@ -2,17 +2,19 @@ let currentTab;
 let performanceArena;
 let canvasContainer;
 let timelineContainer;
+let bg;
 
 const initializeVisualizations = () => {
     // Initialize Dracula graph.
     initializeDraculaGraph();
 
     // Initialize Google timeline graph.
-    google.charts.load("current", {packages:["timeline"]});
-    google.charts.setOnLoadCallback(initializeGoogleTimelineGraph);
+    // google.charts.load("current", {packages:["timeline"]});
+    // google.charts.setOnLoadCallback(initializeGoogleTimelineGraph);
+    initializeGoogleTimelineGraph();
 };
 
-const initializeExtension = () => {
+const initializeTabListeners = () => {
     // Add listeners for tab change
     addListener(".tablinks", "click", (evt)=> {
         removeClass(".tablinks", "active");
@@ -21,18 +23,15 @@ const initializeExtension = () => {
         const elem = document.getElementById(evt.target.getAttribute("data-target-tab"));
         elem.classList.remove("hideMe");
     });
+};
 
-    // Initialize tabs header and tab links.
-    document.querySelector(".tablinks").click();
-    if (performanceArena.InkPipelineStartPointerDown.totalCycles > 0) {
-        document.querySelector(".tab").classList.remove("hideMe");
-    }
 
+const initializeMetricListeners = () => {
     // Add listeners for metric communication with the browser tab.
     document.getElementById("startSyncBtn").addEventListener('click', () => {
         var code = "window.dispatchEvent(new CustomEvent('sync-performance-data', { detail: { doStop: false } }));";
         chrome.tabs.executeScript({code: code});
-        setTimeout(initializeVisualizations, 2000);
+        setTimeout(initializeExtension, 2000);
     }, false);
 
     document.getElementById("stopSyncBtn").addEventListener('click', () => {
@@ -53,8 +52,29 @@ const initializeExtension = () => {
     document.getElementById("resetBtn").addEventListener('click', () => {
         var code = "window.dispatchEvent(new Event('reset-performance-data'));";
         chrome.tabs.executeScript({code: code});
-        setTimeout(initializeVisualizations, 2000);
+        setTimeout(initializeExtension, 2000);
     }, false);
+};
 
-    initializeVisualizations();
+const collectMetrics = () => {
+    if (bg) {
+        let currentPerf = bg.performanceArena[currentTab.id];
+
+        // safety check: when page is still loading
+        if (!currentPerf) {
+            return;
+        }
+
+        // Get tab performance metrics.
+        performanceArena = currentPerf.performanceArena;
+    } else {
+        performanceArena = tabPerfMetrics;
+    }
+};
+
+const initializeExtension = () => {
+    collectMetrics();
+    if (performanceArena) {
+        initializeVisualizations();
+    }
 };

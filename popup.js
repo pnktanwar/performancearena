@@ -4,18 +4,20 @@ window.addEventListener('DOMContentLoaded', () => {
     canvasContainer = document.getElementById('canvasContainer');
     timelineContainer = document.getElementById('timelineContainer');
     
-    let bg = chrome.extension.getBackgroundPage();
+    bg = chrome.extension.getBackgroundPage();
+    initializeTabListeners();
+    initializeMetricListeners();
+    google.charts.load("current", {packages:["timeline"]});
+
+    // Initialize tabs header and tab links.
+    document.querySelector(".tablinks").click();
+    if (performanceArena?.InkPipelineStartPointerDown) {
+        document.querySelector(".tab").classList.remove("hideMe");
+    }
+    
     chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
         currentTab = tabs[0];
-        let currentPerf = bg.performanceArena[currentTab.id];
-
-        // safety check: when page is still loading
-        if (!currentPerf) {
-            return;
-        }
-
-        // Get tab performance metrics.
-        performanceArena = currentPerf.performanceArena;
-        initializeExtension();
+        google.charts.setOnLoadCallback(initializeExtension);
+        //initializeExtension();
     });
 });
