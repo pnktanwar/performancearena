@@ -23,6 +23,10 @@ const initializeTabListeners = () => {
         const elem = document.getElementById(evt.target.getAttribute("data-target-tab"));
         elem.classList.remove("hideMe");
     });
+
+    document.getElementById("isScheduledCleanupAsync").addEventListener("click", (evt) => {
+        initializeExtension();
+    }, false);
 };
 
 

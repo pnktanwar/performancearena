@@ -13,7 +13,8 @@
     <script src="../common.js"></script>
     <script src="../nodesDef.js"></script>
     <script src="../draculaRenderer.js"></script>
-    <script src="../timelineRenderer.js"></script>
+    <!-- <script src="../timelineRenderer.js"></script> -->
+    <script src="../timelineRenderer_async.js"></script>
     <script src="fullscreen_popup.js"></script>
     <title>PerfWatch</title>
 </head>
@@ -29,6 +30,7 @@
         <div class="topMargin">
             <button id="startSyncBtn">Start Syncing Metrics</button>
             <button id="stopSyncBtn">Stop Syncing Metrics</button>
+            <input type="checkbox" id="isScheduledCleanupAsync" /> Is scheduled cleaning async?
         </div>
         <div class="tab" id="tabsHeaderContainer">
             <button class="tablinks" data-target-tab="canvasContainer">Event Flow</button>

@@ -189,6 +189,21 @@ const initializeDraculaGraph = () => {
         stagePerfData.totalTime = quantile([...stagePerfData.recentCycles.map(({r, t}) => t)], PERCENTILE_ACCURACY);
     }
 
+    
+    // Remove it - start
+    // const inkPipelineStartPointerDownDelay = data.InkPipelineStartPointerDown.totalTime;
+    // const inkPipelineStartPointerMoveDelay = data.InkPipelineStartPointerMove.totalTime;
+    // const inkPipelineStartPointerUpDelay = data.InkPipelineStartPointerUp.totalTime;
+    // const allCycles = []
+    //                     .concat(performanceArena.InkPipelineStartPointerDown.recentCycles)
+    //                     .concat(performanceArena.InkPipelineStartPointerMove.recentCycles)
+    //                     .concat(performanceArena.InkPipelineStartPointerUp.recentCycles);
+    // const allTotalTime = quantile([...allCycles.map(({r, t}) => t)], PERCENTILE_ACCURACY);
+    // performanceArena.InkPipelineStartPointerDown.totalTime = 
+    //         performanceArena.InkPipelineStartPointerMove.totalTime = 
+    //             performanceArena.InkPipelineStartPointerUp.totalTime = allTotalTime;
+    // Remove it - end
+
     clearDiv(canvasContainer);
     drawGraph(canvasContainer, performanceArena);
 };
