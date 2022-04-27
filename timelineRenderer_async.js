@@ -66,16 +66,15 @@ const initializeGoogleTimelineGraph = () => {
                 j+=2;
             }
         } else {
-            const idx = i*2;
-            scheduledCleaningEvent_1 = blueboardScheduledCleaningRecentCycles[idx];
-            scheduledCleaningEvent_2 = blueboardScheduledCleaningRecentCycles[idx+1];
+            let idx = i*2;          
+            scheduledCleaningEvent = blueboardScheduledCleaningRecentCycles[idx];
             rows.push([
                 `S${i}`,
                 'scheduledCleaningEvent',
-                scheduledCleaningEvent_1.r - startMoment,
-                scheduledCleaningEvent_1.r + scheduledCleaningEvent_1.t - startMoment,
+                scheduledCleaningEvent.r - startMoment,
+                scheduledCleaningEvent.r + scheduledCleaningEvent.t - startMoment,
             ]);
-            endMoment = scheduledCleaningEvent_1.r + scheduledCleaningEvent_1.t;
+            endMoment = scheduledCleaningEvent.r + scheduledCleaningEvent.t;
         }
     };
 
