@@ -159,7 +159,7 @@ const drawGraphEdges = (g, data) => {
     addEdge(g, Nodes.DryInk, Nodes.SinkFlush, timeTakenInInkDrierNormalOrBeautifiedInkDrying, data.InkDrierNormalOrBeautifiedInkDrying.totalCycles);
 
     const timeTakenInBlueboardSchedledCycle = data.ScheduledNotifierSink.totalTime + data.BlueboardScheduledCleaningCleanup.totalTime;
-    addEdge(g, Nodes.SinkFlush, Nodes.ComponentRerender, timeTakenInBlueboardSchedledCycle, data.BlueboardScheduledCleaning.totalCycles);
+    addEdge(g, Nodes.SinkFlush, Nodes.ComponentRerender, timeTakenInBlueboardSchedledCycle, data.ScheduledNotifierSink.totalCycles);
 
     const timeTakenInComponentRerender = data.CanvasConnectedReRenderCycle.totalTime;
     addEdge(g, Nodes.ComponentRerender, Nodes.End, timeTakenInComponentRerender, data.CanvasConnectedReRenderCycle.totalCycles);
