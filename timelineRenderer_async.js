@@ -9,7 +9,8 @@ const initializeGoogleTimelineGraph = () => {
     const rows = [];
     let startMoment, endMoment;
     const pointerDownStartRecentCycles = performanceArena.InkPipelineStartPointerDown.recentCycles;
-    const blueboardScheduledCleaningRecentCycles = performanceArena.BlueboardScheduledCleaning.recentCycles;
+    const scheduledNotifierSinkRecentCycles = performanceArena.ScheduledNotifierSink.recentCycles;
+    const componentReRenderCycle = performanceArena.CanvasConnectedReRenderCycle.recentCycles;
     let j = 0;
 
     for (let i = 0 ; i < performanceArena.InkPipelineStartPointerDown.recentCycles.length ; i ++) {
@@ -53,46 +54,63 @@ const initializeGoogleTimelineGraph = () => {
         if (isScheduledCleanupAsync) {
             if (
                 i < pointerDownStartRecentCycles.length - 1 && 
-                        pointerDownStartRecentCycles[i+1].r >= blueboardScheduledCleaningRecentCycles[j].r
+                        pointerDownStartRecentCycles[i+1].r >= scheduledNotifierSinkRecentCycles[j].r
             ) {
-                scheduledCleaningEvent = blueboardScheduledCleaningRecentCycles[j];
+                scheduledCleaningEvent = scheduledNotifierSinkRecentCycles[j];
+                componentReRenderCycleEvent = componentReRenderCycle[j];
                 rows.push([
                     `C${j}`,
                     'scheduledCleaningEvent',
                     scheduledCleaningEvent.r - startMoment,
                     scheduledCleaningEvent.r + scheduledCleaningEvent.t - startMoment,
+                ], [
+                    `C${j}`,
+                    'componentReRenderCycle',
+                    componentReRenderCycleEvent.r - startMoment,
+                    componentReRenderCycleEvent.r + componentReRenderCycleEvent.t - startMoment,
                 ]);
-                endMoment = scheduledCleaningEvent.r + scheduledCleaningEvent.t;
-                j+=2;
+                endMoment = componentReRenderCycleEvent.r + componentReRenderCycleEvent.t;
+                j++;
             }
         } else {
-            let idx = i*2;          
-            scheduledCleaningEvent = blueboardScheduledCleaningRecentCycles[idx];
+            scheduledCleaningEvent = scheduledNotifierSinkRecentCycles[i];
+            componentReRenderCycleEvent = componentReRenderCycle[i];
             rows.push([
                 `S${i}`,
                 'scheduledCleaningEvent',
                 scheduledCleaningEvent.r - startMoment,
                 scheduledCleaningEvent.r + scheduledCleaningEvent.t - startMoment,
+            ], [
+                `S${i}`,
+                'componentReRenderCycle',
+                componentReRenderCycleEvent.r - startMoment,
+                componentReRenderCycleEvent.r + componentReRenderCycleEvent.t - startMoment,
             ]);
-            endMoment = scheduledCleaningEvent.r + scheduledCleaningEvent.t;
+            endMoment = componentReRenderCycleEvent.r + componentReRenderCycleEvent.t;
         }
     };
 
-    while( isScheduledCleanupAsync && j <blueboardScheduledCleaningRecentCycles.length ) {
-        scheduledCleaningEvent = blueboardScheduledCleaningRecentCycles[j];
+    while( isScheduledCleanupAsync && j <scheduledNotifierSinkRecentCycles.length ) {
+        scheduledCleaningEvent = scheduledNotifierSinkRecentCycles[j];
+        componentReRenderCycleEvent = componentReRenderCycle[j];
         rows.push([
-            `S${j}`,
+            `C${j}`,
             'scheduledCleaningEvent',
             scheduledCleaningEvent.r - startMoment,
             scheduledCleaningEvent.r + scheduledCleaningEvent.t - startMoment,
+        ], [
+            `C${i}`,
+            'componentReRenderCycle',
+            componentReRenderCycleEvent.r - startMoment,
+            componentReRenderCycleEvent.r + componentReRenderCycleEvent.t - startMoment,
         ]);
         endMoment = scheduledCleaningEvent.r + scheduledCleaningEvent.t;
-        j+=2;
+        j++;
     }
 
     dataTable.addRows(rows);
     chart.draw(dataTable, {
-        colors: ['#db4437', '#4285f4', '#f7cb4d', '#57ba8a', '#00acc1', '#ab47bc'],
+        colors: ['#db4437', '#4285f4', '#f7cb4d', '#57ba8a', '#00acc1', '#ab47bc', '#cbb69d'],
         timeline: {
             showBarLabels: false,
             rowLabelStyle: { fontName: 'Helvetica', fontSize: 24, color: '#603913' }

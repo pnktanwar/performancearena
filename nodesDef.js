@@ -16,6 +16,6 @@ const Nodes = {
     WetInkRender: 'WetInkRender',
     DryInk: 'DryInk',
     SinkFlush: 'SinkFlush',
-    NewStrokeSvgUpdate: 'NewStrokeSvgUpdate',
+    ComponentRerender: 'ComponentRerender',
     End: 'End'
 };

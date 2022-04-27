@@ -80,7 +80,7 @@ const drawGraphNodes = (g) => {
     g.addNode(Nodes.WetInkRender, {x: 87, y: 100, render});
     g.addNode(Nodes.DryInk, {x: 100, y: 50, render});
     g.addNode(Nodes.SinkFlush, {x: 125, y: 50, render});
-    g.addNode(Nodes.NewStrokeSvgUpdate, {x: 150, y: 50, render});
+    g.addNode(Nodes.ComponentRerender, {x: 150, y: 50, render});
     g.addNode(Nodes.End, {x: 175, y: 50, render});
 };
 
@@ -158,11 +158,11 @@ const drawGraphEdges = (g, data) => {
     const timeTakenInInkDrierNormalOrBeautifiedInkDrying = data.InkDrierNormalOrBeautifiedInkDrying.totalTime;
     addEdge(g, Nodes.DryInk, Nodes.SinkFlush, timeTakenInInkDrierNormalOrBeautifiedInkDrying, data.InkDrierNormalOrBeautifiedInkDrying.totalCycles);
 
-    const timeTakenInBlueboardSchedledCycle = data.BlueboardScheduledCleaning.totalTime + data.BlueboardScheduledCleaningCleanup.totalTime;
-    addEdge(g, Nodes.SinkFlush, Nodes.NewStrokeSvgUpdate, timeTakenInBlueboardSchedledCycle, data.BlueboardScheduledCleaning.totalCycles);
+    const timeTakenInBlueboardSchedledCycle = data.ScheduledNotifierSink.totalTime + data.BlueboardScheduledCleaningCleanup.totalTime;
+    addEdge(g, Nodes.SinkFlush, Nodes.ComponentRerender, timeTakenInBlueboardSchedledCycle, data.BlueboardScheduledCleaning.totalCycles);
 
-    const timeTakenInNewStrokeSvgUpdate = data.InkStrokeHookUpdate.totalTime;
-    addEdge(g, Nodes.NewStrokeSvgUpdate, Nodes.End, timeTakenInNewStrokeSvgUpdate, data.InkStrokeHookUpdate.totalCycles);
+    const timeTakenInComponentRerender = data.CanvasConnectedReRenderCycle.totalTime;
+    addEdge(g, Nodes.ComponentRerender, Nodes.End, timeTakenInComponentRerender, data.CanvasConnectedReRenderCycle.totalCycles);
 
     const timeTakenInStrokeCollectionInRenderLoop = data.WetInkStrokeCollectionInRenderLoop.totalTime;
     const timeTakenInWetInkEndPartialStrokeAnimationFrameAvailability = data.WetInkEndPartialStrokeAnimationFrameAvailability.totalTime;
@@ -189,7 +189,6 @@ const initializeDraculaGraph = () => {
         stagePerfData.totalTime = quantile([...stagePerfData.recentCycles.map(({r, t}) => t)], PERCENTILE_ACCURACY);
     }
 
-    
     // Remove it - start
     // const inkPipelineStartPointerDownDelay = data.InkPipelineStartPointerDown.totalTime;
     // const inkPipelineStartPointerMoveDelay = data.InkPipelineStartPointerMove.totalTime;
