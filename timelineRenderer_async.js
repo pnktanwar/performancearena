@@ -54,7 +54,8 @@ const initializeGoogleTimelineGraph = () => {
         if (isScheduledCleanupAsync) {
             if (
                 i < pointerDownStartRecentCycles.length - 1 && 
-                        pointerDownStartRecentCycles[i+1].r >= scheduledNotifierSinkRecentCycles[j].r
+                j < scheduledNotifierSinkRecentCycles.length && 
+                pointerDownStartRecentCycles[i+1].r >= scheduledNotifierSinkRecentCycles[j].r
             ) {
                 scheduledCleaningEvent = scheduledNotifierSinkRecentCycles[j];
                 componentReRenderCycleEvent = componentReRenderCycle[j];
@@ -99,7 +100,7 @@ const initializeGoogleTimelineGraph = () => {
             scheduledCleaningEvent.r - startMoment,
             scheduledCleaningEvent.r + scheduledCleaningEvent.t - startMoment,
         ], [
-            `C${i}`,
+            `C${j}`,
             'componentReRenderCycle',
             componentReRenderCycleEvent.r - startMoment,
             componentReRenderCycleEvent.r + componentReRenderCycleEvent.t - startMoment,
