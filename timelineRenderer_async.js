@@ -1,5 +1,74 @@
+const copyEvent = (e) => JSON.parse(JSON.stringify(e));
+
+const formatDataArray = (baseArr, targetArr) => {
+    const baseLen = baseArr.length;
+    const targetLen = targetArr.length;
+    if (targetLen > baseLen) {
+        throw new Error(`Error mismatch: ${targetLen} > ${baseLen} :: ${baseArr} ${targetArr}`);
+    }
+
+    // if (targetLen === baseLen) {
+    //     return targetArr;
+    // }
+
+    const targetArrCopy = [];
+    let i, j;
+    for ( i = 1, j = 0 ; i < baseLen && j < targetLen ; ) {
+        if ( baseArr[i].r >= targetArr[j].r ) {
+            targetArrCopy.push(copyEvent(targetArr[j]));
+            i++;
+            j++;
+        } else {
+            targetArrCopy.push({ r: baseArr[i-1].r + baseArr[i-1].t, t: 0});
+            i++;
+        }
+    }
+
+    for (; j < targetLen ; j ++) {
+        targetArrCopy.push(copyEvent(targetArr[j]));
+    }
+
+    for (; i < baseLen ; i ++ ) {
+        targetArrCopy.push({ r: baseArr[i-1].r + baseArr[i-1].t, t: 0});
+    }
+
+    for (j = targetArrCopy.length ; j < baseLen ; j ++) {
+        targetArrCopy.push({ r: baseArr[i-1].r + baseArr[i-1].t, t: 0});
+    }
+    
+    return targetArrCopy;
+};
+
+const formatData = () => {
+    const formattedPerfData = JSON.parse(JSON.stringify(performanceArena));
+    const {
+        InkPipelineStartPointerDown: { recentCycles: inkPipelineStartPointerDownRecentCycles },
+        InkPipelinePointerDown: { recentCycles: inkPipelinePointerDownRecentCycles },
+        InkPipelineStartPointerUp: { recentCycles: inkPipelineStartPointerUpRecentCycles },
+        InkPipelinePointerUp: { recentCycles: inkPipelinePointerUpRecentCycles },
+        InkDrierNormalOrBeautifiedInkDrying: { recentCycles: inkDrierNormalOrBeautifiedInkDryingRecentCycles },
+        ScheduledNotifierSink: { recentCycles: scheduledNotifierSinkRecentCycles },
+        CanvasConnectedReRenderCycle: { recentCycles: canvasConnectedReRenderCycleRecentCycles },
+    } = formattedPerfData;
+    const InkPipelineStartPointerDown = inkPipelineStartPointerDownRecentCycles;
+    const InkPipelinePointerDown = inkPipelinePointerDownRecentCycles;
+    const InkPipelineStartPointerUp = formatDataArray(InkPipelinePointerDown, inkPipelineStartPointerUpRecentCycles);
+    const InkPipelinePointerUp = formatDataArray(InkPipelinePointerDown, inkPipelinePointerUpRecentCycles);
+    const InkDrierNormalOrBeautifiedInkDrying = formatDataArray(InkPipelinePointerUp, inkDrierNormalOrBeautifiedInkDryingRecentCycles);
+    const ScheduledNotifierSink = formatDataArray(InkDrierNormalOrBeautifiedInkDrying, scheduledNotifierSinkRecentCycles);
+    const CanvasConnectedReRenderCycle = formatDataArray(ScheduledNotifierSink, canvasConnectedReRenderCycleRecentCycles);
+    return {
+        InkPipelineStartPointerDown,
+        InkPipelinePointerDown,
+        InkPipelineStartPointerUp,
+        InkPipelinePointerUp,
+        InkDrierNormalOrBeautifiedInkDrying,
+        ScheduledNotifierSink,
+        CanvasConnectedReRenderCycle,
+    };
+};
+
 const initializeGoogleTimelineGraph = () => {
-    const isScheduledCleanupAsync = document.getElementById('isScheduledCleanupAsync').checked;
     const chart = new google.visualization.Timeline(timelineContainer);
     const dataTable = new google.visualization.DataTable();
     dataTable.addColumn({ type: 'string', id: 'Stroke' });
@@ -8,18 +77,26 @@ const initializeGoogleTimelineGraph = () => {
     dataTable.addColumn({ type: 'number', id: 'End' });
     const rows = [];
     let startMoment, endMoment;
-    const pointerDownStartRecentCycles = performanceArena.InkPipelineStartPointerDown.recentCycles;
-    const scheduledNotifierSinkRecentCycles = performanceArena.ScheduledNotifierSink.recentCycles;
-    const componentReRenderCycle = performanceArena.CanvasConnectedReRenderCycle.recentCycles;
+    const {
+        InkPipelineStartPointerDown,
+        InkPipelinePointerDown,
+        InkPipelineStartPointerUp,
+        InkPipelinePointerUp,
+        InkDrierNormalOrBeautifiedInkDrying,
+        ScheduledNotifierSink,
+        CanvasConnectedReRenderCycle,
+    } = formatData();
+
     let j = 0;
 
     for (let i = 0 ; i < performanceArena.InkPipelineStartPointerDown.recentCycles.length ; i ++) {
-        const pointerDownEventRegistered = pointerDownStartRecentCycles[i];
-        const pointerDownEventProcessing = performanceArena.InkPipelinePointerDown.recentCycles[i];
-        const pointerUpEventRegistered = performanceArena.InkPipelineStartPointerUp.recentCycles[i];
-        const pointerUpEventProcessing = performanceArena.InkPipelinePointerUp.recentCycles[i];
-        const inkDryingEvent = performanceArena.InkDrierNormalOrBeautifiedInkDrying.recentCycles[i];
-        let scheduledCleaningEvent;
+        const pointerDownEventRegistered = InkPipelineStartPointerDown[i];
+        const pointerDownEventProcessing = InkPipelinePointerDown[i];
+        const pointerUpEventRegistered = InkPipelineStartPointerUp[i];
+        const pointerUpEventProcessing = InkPipelinePointerUp[i];
+        const inkDryingEvent = InkDrierNormalOrBeautifiedInkDrying[i];
+        const scheduledCleaningEvent = ScheduledNotifierSink[i];
+        const componentReRenderCycleEvent = CanvasConnectedReRenderCycle[i];
         if (!startMoment) {
             startMoment = pointerDownEventRegistered.r;
         }
@@ -48,66 +125,20 @@ const initializeGoogleTimelineGraph = () => {
             'inkDryingEvent',
             inkDryingEvent.r + 0.5 - startMoment,
             inkDryingEvent.r + inkDryingEvent.t - startMoment,
-        ]);
-
-        
-        if (isScheduledCleanupAsync) {
-            if (
-                i < pointerDownStartRecentCycles.length - 1 && 
-                j < scheduledNotifierSinkRecentCycles.length && 
-                pointerDownStartRecentCycles[i+1].r >= scheduledNotifierSinkRecentCycles[j].r
-            ) {
-                scheduledCleaningEvent = scheduledNotifierSinkRecentCycles[j];
-                componentReRenderCycleEvent = componentReRenderCycle[j];
-                rows.push([
-                    `C${j}`,
-                    'scheduledCleaningEvent',
-                    scheduledCleaningEvent.r - startMoment,
-                    scheduledCleaningEvent.r + scheduledCleaningEvent.t - startMoment,
-                ], [
-                    `C${j}`,
-                    'componentReRenderCycle',
-                    componentReRenderCycleEvent.r - startMoment,
-                    componentReRenderCycleEvent.r + componentReRenderCycleEvent.t - startMoment,
-                ]);
-                endMoment = componentReRenderCycleEvent.r + componentReRenderCycleEvent.t;
-                j++;
-            }
-        } else {
-            scheduledCleaningEvent = scheduledNotifierSinkRecentCycles[i];
-            componentReRenderCycleEvent = componentReRenderCycle[i];
-            rows.push([
-                `S${i}`,
-                'scheduledCleaningEvent',
-                scheduledCleaningEvent.r - startMoment,
-                scheduledCleaningEvent.r + scheduledCleaningEvent.t - startMoment,
-            ], [
-                `S${i}`,
-                'componentReRenderCycle',
-                componentReRenderCycleEvent.r - startMoment,
-                componentReRenderCycleEvent.r + componentReRenderCycleEvent.t - startMoment,
-            ]);
-            endMoment = componentReRenderCycleEvent.r + componentReRenderCycleEvent.t;
-        }
-    };
-
-    while( isScheduledCleanupAsync && j <scheduledNotifierSinkRecentCycles.length ) {
-        scheduledCleaningEvent = scheduledNotifierSinkRecentCycles[j];
-        componentReRenderCycleEvent = componentReRenderCycle[j];
-        rows.push([
-            `C${j}`,
+        ], [
+            `S${i}`,
             'scheduledCleaningEvent',
             scheduledCleaningEvent.r - startMoment,
             scheduledCleaningEvent.r + scheduledCleaningEvent.t - startMoment,
         ], [
-            `C${j}`,
+            `S${i}`,
             'componentReRenderCycle',
             componentReRenderCycleEvent.r - startMoment,
             componentReRenderCycleEvent.r + componentReRenderCycleEvent.t - startMoment,
         ]);
-        endMoment = scheduledCleaningEvent.r + scheduledCleaningEvent.t;
-        j++;
-    }
+
+        endMoment = componentReRenderCycleEvent.r + componentReRenderCycleEvent.t;
+    };
 
     dataTable.addRows(rows);
     chart.draw(dataTable, {

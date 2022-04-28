@@ -24,10 +24,6 @@ const initializeTabListeners = () => {
         elem.classList.remove("hideMe");
     });
 
-    document.getElementById("isScheduledCleanupAsync")?.addEventListener("click", (evt) => {
-        initializeExtension();
-    }, false);
-
     document.getElementById("openInNewWindow")?.addEventListener("click", () => {
         chrome.storage.local.set({'tabPerfMetrics': performanceArena}, function() {
             var error = chrome.runtime.lastError;  
