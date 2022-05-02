@@ -116,10 +116,10 @@ const drawGraphEdges = (g, data) => {
     addEdge(g, Nodes.EventRegistered, Nodes.NUIPipelinePointerMove, inkPipelineStartPointerMoveDelay, data.InkPipelineStartPointerMove.totalCycles);
     addEdge(g, Nodes.EventRegistered, Nodes.NUIPipelinePointerUp, inkPipelineStartPointerUpDelay, data.InkPipelineStartPointerUp.totalCycles);
 
-    const canvasPointerListenerPointerDownDelay = data.CanvasPointerListenerPointerDown.totalTime;
-    const canvasPointerListenerPointerUpDelay = data.CanvasPointerListenerPointerUp.totalTime;
-    addEdge(g, Nodes.EventRegistered, Nodes.CanvasPointerListenerPointerDown, canvasPointerListenerPointerDownDelay, data.CanvasPointerListenerPointerDown.totalCycles);
-    addEdge(g, Nodes.EventRegistered, Nodes.CanvasPointerListenerPointerUp, canvasPointerListenerPointerUpDelay, data.CanvasPointerListenerPointerUp.totalCycles);
+    const canvasPointerListenerPointerDownDelay = data.CanvasPointerListenerPointerDown?.totalTime || 0;
+    const canvasPointerListenerPointerUpDelay = data.CanvasPointerListenerPointerUp?.totalTime || 0;
+    addEdge(g, Nodes.EventRegistered, Nodes.CanvasPointerListenerPointerDown, canvasPointerListenerPointerDownDelay, data.CanvasPointerListenerPointerDown?.totalCycles);
+    addEdge(g, Nodes.EventRegistered, Nodes.CanvasPointerListenerPointerUp, canvasPointerListenerPointerUpDelay, data.CanvasPointerListenerPointerUp?.totalCycles);
 
     const timeTakenNUIPipelinePointerDown = data.InkPipelinePointerDown.totalTime - data.WinkPipelinePointerDown.totalTime;
     const timeTakenNUIPipelinePointerMove = data.InkPipelinePointerMove.totalTime - data.WinkPipelinePointerMove.totalTime;
@@ -136,15 +136,15 @@ const drawGraphEdges = (g, data) => {
     addEdge(g, Nodes.WinkPipelinePointerUp, Nodes.InkSink, timeTakenWinkPipelinePointerUp, data.WinkPipelinePointerUp.totalCycles);
 
     const timeTakenInWetInkSharingChannel = 
-        data.WetInkSharingChannelBroadcastStrokeEnd.totalTime +
-        data.WetInkSharingChannelClearStroke.totalTime + 
-        data.WetInkSharingChannelOnBeginStrokeEvent.totalTime + 
-        data.WetInkSharingChannelOnCurrentStrokeStreamEvent.totalTime + 
-        data.WetInkSharingChannelOnEndStrokeEvent.totalTime + 
-        data.WetInkSharingChannelOnReplaceRemoteStrokeEvent.totalTime + 
-        data.WetInkSharingChannelOnReplaceLastPointEvent.totalTime + 
-        data.WetInkSharingChannelOnWetInkBeautifiedEvent.totalTime + 
-        data.WetInkSharingChannelOnAdjustmentUpdatedEvent.totalTime;
+        data.WetInkSharingChannelBroadcastStrokeEnd?.totalTime +
+        data.WetInkSharingChannelClearStroke?.totalTime + 
+        data.WetInkSharingChannelOnBeginStrokeEvent?.totalTime + 
+        data.WetInkSharingChannelOnCurrentStrokeStreamEvent?.totalTime + 
+        data.WetInkSharingChannelOnEndStrokeEvent?.totalTime + 
+        data.WetInkSharingChannelOnReplaceRemoteStrokeEvent?.totalTime + 
+        data.WetInkSharingChannelOnReplaceLastPointEvent?.totalTime + 
+        data.WetInkSharingChannelOnWetInkBeautifiedEvent?.totalTime + 
+        data.WetInkSharingChannelOnAdjustmentUpdatedEvent?.totalTime;
         //data.BroadcastManagerFlush.totalTime;
 
     addEdge(g, Nodes.InkSink, Nodes.WetInkSharingChannel, timeTakenInWetInkSharingChannel);
@@ -165,9 +165,9 @@ const drawGraphEdges = (g, data) => {
     addEdge(g, Nodes.ComponentRerender, Nodes.End, timeTakenInComponentRerender, data.CanvasConnectedReRenderCycle.totalCycles);
 
     const timeTakenInStrokeCollectionInRenderLoop = data.WetInkStrokeCollectionInRenderLoop.totalTime;
-    const timeTakenInWetInkEndPartialStrokeAnimationFrameAvailability = data.WetInkEndPartialStrokeAnimationFrameAvailability.totalTime;
+    const timeTakenInWetInkEndPartialStrokeAnimationFrameAvailability = data.WetInkEndPartialStrokeAnimationFrameAvailability?.totalTime;
     addEdge(g, Nodes.RenderLoop, Nodes.WetInkCollect, timeTakenInStrokeCollectionInRenderLoop, data.WetInkStrokeCollectionInRenderLoop.totalCycles);
-    addEdge(g, Nodes.RenderLoop, Nodes.WetInkRender, timeTakenInWetInkEndPartialStrokeAnimationFrameAvailability, data.WetInkEndPartialStrokeAnimationFrameAvailability.totalCycles);
+    addEdge(g, Nodes.RenderLoop, Nodes.WetInkRender, timeTakenInWetInkEndPartialStrokeAnimationFrameAvailability, data.WetInkEndPartialStrokeAnimationFrameAvailability?.totalCycles);
 };
 
 
